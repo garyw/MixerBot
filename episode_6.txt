@@ -1,0 +1,68 @@
+A1 - Intro
+
+{BRENNA}
+Welcome to the Mixer Dev Show - the show where we jam out to the latest and greatest of developing for Mixer.
+
+{GARY}
+That's right! Whether you're a professional developer, hobby developer, or not a developer at all this is the show to learn about how you can build awesome integrations and tools into streams and games on Mixer. I'm Gary, in again for Hutch, and today I'm excited to have Brenna joining me.
+
+{some off script about us or Hutch/Mike at Unite}
+
+{BRENNA}
+Every week we're going to be coming at you live with the latest in the world of Mixer developers
+
+{GARY}
+But that's not all. Every week we'll bring new tutorials and samples to help you get the most out of the Mixer platform
+
+{BRENNA}
+And we'll always be working in little secrets and pro tips directly from the developers to help you up your skills
+
+{GARY}
+And all of you watching live will have the opportunity to help shape our show and our samples, plus ask questions directly to the Mixer team. You can also tweet at us with the hashtag #MixerDevShow to talk about content, tips, or samples that you'd like to see in the show.
+
+{BRENNA}
+And if you're a developer and you're adding interactive to your game, tool, or something completely different be sure to drop us a line and we might just feature you on the show!
+
+{GARY}
+We've been hearing from a lot of you that you are interested in learning about chat bots, so today we're finally going to start building one.
+
+{BRENNA}
+But before that, we'll go over the basics of chat so that you'll understand the types of things a chat bot can do.
+
+{GARY}
+And I've been told you're going to show off a tool you built for streamers that lets them modify their view of chat while streaming.
+
+{BRENNA}
+That's right. And then we'll show an easy way to authenticate with Mixer, and then make a connection to chat and send and recieve chat messages.
+
+{GARY}
+But first we want to know more about YOU! As we go into the next segment our awesome producer Tabz is going to pop up a poll where we've got a handful of questions to learn more about who's watching. It's multiple choice so just pick the option that you feel best represents you. The questions show at the top of the chat window, so keep an eye out for them!
+
+{BRENNA}
+We run these surveys every week to understand who's out there, and use that to help pick better and more interesting samples for YOU, our favorite developers.
+
+{GARY}
+And with that, lets talk chat.
+
+(Segment Header: Chat Basics)
+ - Accounts (authed/anonymous)
+ - Moderators
+ - Roles/Colors
+ - Tagging
+ - Emotes
+
+
+(Segment Header: Chrome Extention)
+ - Why
+ - How
+
+(Segment Header: Chat Bot)
+ - Why people want to use chat bots
+ - Authenticating to Mixer
+    - Use the REST API to get a short code
+    - Poll on the handle URI while the user enters the code on Mixer.com
+    - Exchange the shortcode results for an auth token
+ - Connect to Chat
+    - Use the auth token + channel ID to get chat auth + chat endpoint to connect to
+ - Read messges
+ - Do some other stuff?
