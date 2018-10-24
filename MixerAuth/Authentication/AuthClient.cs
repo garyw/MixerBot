@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,27 +31,6 @@ namespace MixerChatBot.Authentication
         {
             this.clientId = clientId;
             this.clientSecret = clientSecret;
-        }
-
-        /// <summary>
-        /// Runs the full OAuth login flow for a console app.
-        /// </summary>
-        /// <param name="scopes">List of permissions separated by whitespace.</param>
-        /// <returns>The access and refresh tokens.</returns>
-        public async Task<Contracts.TokenResponse> RunOauthCodeFlowForConsoleAppAsync(string scopes)
-        {
-            Contracts.ShortCodeResponse shortCode = await this.RequestShortcodeAsync(scopes);
-
-            Console.WriteLine("Go to http://mixer.com/go and enter code " + shortCode.code);
-
-            Contracts.CodeResponse authCode = await this.RequestAuthCodeAsync(shortCode.handle);
-            while (authCode == null)
-            {
-                await Task.Delay(500);
-                authCode = await this.RequestAuthCodeAsync(shortCode.handle);
-            }
-
-            return await this.ExchangeCodeForTokenAsync(authCode.code);
         }
 
         /// <summary>
