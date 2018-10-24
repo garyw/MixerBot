@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using MixerChatBot.Authentication.Contracts;
+using MixerChatBot.Chat.Messages;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -54,9 +55,22 @@ namespace MixerChatBot.Chat
                 {
                     byte[] nextMessage = await this.RecieveMessageAsync(ts.Token);
                     // Console.WriteLine(System.Text.Encoding.UTF8.GetString(nextMessage));
-                    chatMessageInfo = DeserializeMessage<Messages.ChatMessageEvent>(nextMessage);
-                    if (string.CompareOrdinal(chatMessageInfo.type, Messages.BaseEvent.Type) != 0 ||
-                        string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatMessageEvent.EventType) != 0)
+
+                    var rawJson = DeserializeMessage <JObject>(nextMessage);
+
+                    chatMessageInfo = rawJson.ToObject<Messages.ChatMessageEvent>();
+                    if (string.CompareOrdinal(chatMessageInfo.type, Messages.BaseEvent.Type) != 0)
+                    {
+                        chatMessageInfo = null;
+                    }
+                    else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatDeleteMessageEvent.EventType) == 0)
+                    {
+                        // we have a deletion - lets tell someone about it
+                        var deletionMessage = rawJson.ToObject<Messages.ChatDeleteMessageEvent>();
+                        Console.WriteLine($"{deletionMessage.data.moderator.user_name} deleted a message");
+                        chatMessageInfo = null;
+                    }
+                    else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatMessageEvent.EventType) != 0)
                     {
                         // not our message, wait for the next one
                         chatMessageInfo = null;
@@ -79,7 +93,7 @@ namespace MixerChatBot.Chat
         {
             Messages.SendMethodCall methodData = new Messages.SendMethodCall
             {
-                method = "auth",
+                method = ChatMethod.Auth,
                 arguments = new JArray(channelId, userId, authToken),
                 id = Interlocked.Increment(ref this.messageId),
             };

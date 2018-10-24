@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using MixerChatBot.Rest;
 using Newtonsoft.Json;
 
 namespace MixerChatBot.Authentication
@@ -11,7 +12,7 @@ namespace MixerChatBot.Authentication
     /// <summary>
     /// Class to simplest OAuth short code login for a console app.
     /// </summary>
-    class AuthClient : HttpClient
+    class AuthClient : MixerRestBase
     {
         private static readonly string shortCodeUri = "https://mixer.com/api/v1/oauth/shortcode";
         private static readonly string authCodeUri = "https://mixer.com/api/v1/oauth/shortcode/check/{0}";
@@ -20,7 +21,6 @@ namespace MixerChatBot.Authentication
         private static readonly string authCodeType = "authorization_code";
         private string clientId;
         private string clientSecret;
-        private HttpClient webClient;
 
         /// <summary>
         /// Default constructor.
@@ -29,11 +29,10 @@ namespace MixerChatBot.Authentication
         /// <param name="clientId">The OAuth client id.</param>
         /// <param name="clientSecret">The OAuth client secret, only required if the OAuth client in use has one.</param>
         public AuthClient(string clientId, string clientSecret)
-            : base(CreateWebRequestHandler(), true)
+            : base(null)
         {
             this.clientId = clientId;
             this.clientSecret = clientSecret;
-            this.webClient = new HttpClient();
         }
 
         /// <summary>
@@ -142,48 +141,6 @@ namespace MixerChatBot.Authentication
                     return await this.GetResponseAsync<Contracts.ChatConnectionAuthentication>(response);
                 }
             }
-        }
-
-        /// <summary>
-        /// Helper method to set the handler settings for this httpclient
-        /// </summary>
-        /// <returns>The HttpMessageHandler</returns>
-        private static HttpMessageHandler CreateWebRequestHandler()
-        {
-            HttpClientHandler requestHandler = new HttpClientHandler
-            {
-                CookieContainer = new CookieContainer(),
-                UseCookies = true,
-            };
-
-            return requestHandler;
-        }
-
-        /// <summary>
-        /// Handles a web response and deserializes the response body.
-        /// </summary>
-        /// <typeparam name="T">The object type to deserialize into.</typeparam>
-        /// <param name="response">The completed HTTP response.</param>
-        /// <returns>A deserialized object from the response.</returns>
-        protected async Task<T> GetResponseAsync<T>(HttpResponseMessage response)
-            where T : class
-        {
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                throw new WebException(error);
-            }
-
-            if (response.StatusCode == HttpStatusCode.NoContent)
-            {
-                return null;
-            }
-
-            var content = await response.Content.ReadAsStringAsync();
-
-            var contract = JsonConvert.DeserializeObject<T>(content);
-
-            return contract;
         }
     }
 }
