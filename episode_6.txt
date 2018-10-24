@@ -45,12 +45,23 @@ We run these surveys every week to understand who's out there, and use that to h
 And with that, lets talk chat.
 
 (Segment Header: Chat Basics)
- - Accounts (authed/anonymous)
- - Moderators
- - Roles/Colors
- - Tagging
- - Emotes
 
+{BRENNA}
+Chat is how viewers can talk to the streamer on a channel. You can only send a message if you're signed in but you can also connect anonymously to chat and read messages.
+
+{GARY}
+When authenticated into a channel, you have roles within the channel. Some of these roles are things like User, a regular viewer, or Owner, the streamer. Some of these roles change the color of people's names in chat. For example, my name is yellow because I'm Mixer staff, and moderators have green names.
+
+{BRENNA}
+ (no script) what are mods and what can they do?
+
+{GARY}
+Another way to use chat without taling publicly is to send a whisper. This is a message from one user directly to another user in the same channel. No other users can see these messages.
+
+{BRENNA}
+A couple other things that you can do in chat that we're not going to show today are tagging other users and emotes. Tagging references another user in chat, gives a link to their profile and makes the message bold so that they notice it. Ane emotes are a way to provide an image in place of some of the message text.
+
+-- anything else? --
 
 (Segment Header: Chrome Extention)
  - Why
@@ -66,3 +77,21 @@ And with that, lets talk chat.
     - Use the auth token + channel ID to get chat auth + chat endpoint to connect to
  - Read messges
  - Do some other stuff?
+
+
+Outro
+
+{GARY}
+Thanks for tuning into another segment of the Mixer Dev Show.  Be sure to tune in every Wednesday at 1pm PT / 4pm ET for more info like this every week.
+
+{BRENNA}
+If you want to get more information about what we showed here today, you can check out the vods here on Mixer, read more on our BRAND NEW DEV SITE , or visit our youtube channel at WatchMixer.
+
+{GARY}
+While you're at it, why not go ahead and get started building some experiences of your own by visiting the Mixer Dev Lab at mixer.com/lab
+
+{BRENNA}
+And of course, follow Mixer on all the socials at @WatchMixer and more dev goodness with #MixerDevShow, and if you haven't already be sure that you've clicked that blue follow button right below the stream.
+
+{GARY}
+That's all from us! Good day and Happy coding!
