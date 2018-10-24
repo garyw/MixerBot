@@ -17,6 +17,28 @@ namespace MixerChatBot.Rest
         }
 
         /// <summary>
+        /// Gets the type of token
+        /// </summary>
+        protected string AuthenticationScheme
+        {
+            get
+            {
+                return authInfo.token_type;
+            }
+        }
+
+        /// <summary>
+        /// Gets the OAuth access token
+        /// </summary>
+        protected string AccessToken
+        {
+            get
+            {
+                return authInfo.access_token;
+            }
+        }
+
+        /// <summary>
         /// Helper method to set the handler settings for this httpclient
         /// </summary>
         /// <returns>The HttpMessageHandler</returns>

@@ -34,6 +34,11 @@ namespace MixerChatBot.Chat.Messages
         public const string Purge = "purge";
 
         /// <summary>
+        /// Delete a message from chat.
+        /// </summary>
+        public const string DeleteMessage = "deleteMessage";
+
+        /// <summary>
         /// Request previous messages from this chat from before you joined.
         /// </summary>
         public const string History = "history";
