@@ -64,20 +64,32 @@ A couple other things that you can do in chat that we're not going to show today
 -- anything else? --
 
 (Segment Header: Chrome Extention)
- - Why
- - How
+
+{Off script - why? how it was done? }
 
 (Segment Header: Chat Bot)
- - Why people want to use chat bots
- - Authenticating to Mixer
-    - Use the REST API to get a short code
-    - Poll on the handle URI while the user enters the code on Mixer.com
-    - Exchange the shortcode results for an auth token
- - Connect to Chat
-    - Use the auth token + channel ID to get chat auth + chat endpoint to connect to
- - Read messges
- - Do some other stuff?
 
+{GARY}
+We heard feedback that there was interest in looking at a chat bot on this show, so we're going to do that today.
+
+{BRENNA}
+Chat bots are any clients that read or write to chat without a human. These can be useful to help the streamer by in a number of ways {some useful things for bots to do}.
+
+{GARY}
+So the first thing we'll need to do to get a chat bot working is authenticate to Mixer.
+
+{BRENNA}
+After that we'll need to connect a web socket to the Mixer chat service and read and write messages to chat using that web socket. We're going to do that today in C#.
+
+{GARY}
+Lets go to my computer to start looking at OAuth for our chat bot.
+
+{Off script for authentication library}
+
+{BRENNA}
+Now lets move over to my computer to use that authentication to connect to change and read some messages.
+
+{Off script to write the chat bot loop}
 
 Outro
 
