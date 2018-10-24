@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using MixerChatBot.Authentication.Contracts;
+using MixerChatBot.Http.Contracts;
 using MixerChatBot.Chat.Messages;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -24,7 +24,7 @@ namespace MixerChatBot.Chat
         /// <param name="channelId">The channel to connect to.</param>
         /// <param name="userId">The user that is connecting to chat.</param>
         /// <returns>void</returns>
-        public async Task ConnectAsync(ChatConnectionAuthentication chatInfo, uint channelId, uint userId)
+        public async Task ConnectAsync(ChatConnectionInformation chatInfo, uint channelId, uint userId)
         {
             // we have a list of chat servers, the first one is good enough
             this.server = chatInfo.endpoints[0];
@@ -44,9 +44,9 @@ namespace MixerChatBot.Chat
         /// Get the next chat message from the channel.
         /// </summary>
         /// <returns>The chat message info.</returns>
-        public async Task<Messages.ChatMessageEvent> GetNextChatMessageAsync()
+        public async Task<Messages.BaseEvent> GetNextChatMessageAsync()
         {
-            Messages.ChatMessageEvent chatMessageInfo = null;
+            Messages.BaseEvent chatMessageInfo = null;
 
             // we'll just keep trying till we get a chat message
             using (var ts = new CancellationTokenSource())
@@ -58,21 +58,30 @@ namespace MixerChatBot.Chat
 
                     var rawJson = DeserializeMessage <JObject>(nextMessage);
 
-                    chatMessageInfo = rawJson.ToObject<Messages.ChatMessageEvent>();
+                    chatMessageInfo = rawJson.ToObject<Messages.BaseEvent>();
                     if (string.CompareOrdinal(chatMessageInfo.type, Messages.BaseEvent.Type) != 0)
                     {
                         chatMessageInfo = null;
                     }
                     else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatDeleteMessageEvent.EventType) == 0)
                     {
-                        // we have a deletion - lets tell someone about it
-                        var deletionMessage = rawJson.ToObject<Messages.ChatDeleteMessageEvent>();
-                        Console.WriteLine($"{deletionMessage.data.moderator.user_name} deleted a message");
-                        chatMessageInfo = null;
+                        chatMessageInfo = rawJson.ToObject<Messages.ChatDeleteMessageEvent>();
                     }
-                    else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatMessageEvent.EventType) != 0)
+                    else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatUserJoinEvent.EventType) == 0)
                     {
-                        // not our message, wait for the next one
+                        chatMessageInfo = rawJson.ToObject<Messages.ChatUserJoinEvent>();
+                    }
+                    else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatUserLeaveEvent.EventType) == 0)
+                    {
+                        chatMessageInfo = rawJson.ToObject<Messages.ChatUserLeaveEvent>();
+                    }
+                    else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatMessageEvent.EventType) == 0)
+                    {
+                        chatMessageInfo = rawJson.ToObject<Messages.ChatMessageEvent>();
+                    }
+                    else
+                    {
+                        // we didn't match a know type, just throw it away
                         chatMessageInfo = null;
                     }
                 }
@@ -119,6 +128,65 @@ namespace MixerChatBot.Chat
                 throw new WebSocketException(reply.error.code, reply.error.message);
             }
         }
+
+        /// <summary>
+        /// Send a whisper to another user in the chat.
+        /// </summary>
+        /// <see cref="https://dev.mixer.com/reference/chat/methods/whisper"/>
+        /// <param name="targetUserName">The user to whisper to</param>
+        /// <param name="message">The message to send to the user</param>
+        /// <returns>void</returns>
+        public async Task SendWhisperAsync(string targetUserName, string message)
+        {
+            await this.SendToChatAsync(ChatMethod.Whisper, new JArray(targetUserName, message));
+        }
+
+        /// <summary>
+        /// Send a whisper to another user in the chat.
+        /// </summary>
+        /// <see cref="https://dev.mixer.com/reference/chat/methods/deletemessage"/>
+        /// <param name="messageId">The id of the message to delete</param>
+        /// <returns>void</returns>
+        public async Task SendDeleteMessageAsync(string messageId)
+        {
+            await this.SendToChatAsync(ChatMethod.DeleteMessage, new JArray(messageId));
+        }
+
+        /// <summary>
+        /// Send a chat message to the server. The server will reply with data identical to a ChatMessage event.
+        /// </summary>
+        /// <see cref="https://dev.mixer.com/reference/chat/methods/msg"/>
+        /// <param name="message">The message to send to chat</param>
+        /// <returns>void</returns>
+        public async Task SendMessageAsync(string message)
+        {
+            await this.SendToChatAsync(ChatMethod.Message, new JArray(message));
+        }
+
+        /// <summary>
+        /// Call to do the socket send.
+        /// </summary>
+        /// <param name="method">The method to be sent</param>
+        /// <param name="parameters">Parameters to the method</param>
+        /// <returns>Async task</returns>
+        private async Task SendToChatAsync(string method, JArray parameters)
+        {
+            using (var ts = new CancellationTokenSource())
+            {
+                Messages.SendMethodCall methodData = new Messages.SendMethodCall
+                {
+                    method = method,
+                    arguments = parameters,
+                    id = Interlocked.Increment(ref this.messageId),
+                };
+
+                await this.chatSocket.SendAsync(SerializeToJsonBytes(methodData), WebSocketMessageType.Text, true, ts.Token);
+
+                // at this point you'd want to validate the response, but we're throwing them away
+                // in the recieve for simplicity, so we'll skip it
+            }
+        }
+
 
         /// <summary>
         /// Get the next message from the chat server.

@@ -12,12 +12,11 @@ namespace MixerChatBot.Authentication
     /// <summary>
     /// Class to simplest OAuth short code login for a console app.
     /// </summary>
-    class AuthClient : MixerRestBase
+    public class AuthClient : MixerRestBase
     {
         private static readonly string shortCodeUri = "https://mixer.com/api/v1/oauth/shortcode";
         private static readonly string authCodeUri = "https://mixer.com/api/v1/oauth/shortcode/check/{0}";
         private static readonly string authTokenUri = "https://mixer.com/api/v1/oauth/token";
-        private static readonly string chatAuthKey = "https://mixer.com/api/v1/chats/{0}";
         private static readonly string authCodeType = "authorization_code";
         private string clientId;
         private string clientSecret;
@@ -120,25 +119,6 @@ namespace MixerChatBot.Authentication
                 using (var response = await this.SendAsync(request))
                 {
                     return await this.GetResponseAsync<Contracts.TokenResponse>(response);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Prepares the user to join a chat channel. It returns the channel's chatroom settings, available chat servers, and an authentication key that the user (if authenticated) should use to authenticate with the chat servers over websockets.
-        /// </summary>
-        /// <see cref="https://dev.mixer.com/rest/index.html#chats__channelId__get"/>
-        /// <param name="authToken">OAuth token info.</param>
-        /// <param name="channelId">The id of the channel to join chat for.</param>
-        /// <returns>Chat connection info and auth key.</returns>
-        public async Task<Contracts.ChatConnectionAuthentication> RequestChatAuthKey(Contracts.TokenResponse authToken, uint channelId)
-        {
-            using (var request = new HttpRequestMessage(HttpMethod.Get, string.Format(CultureInfo.InvariantCulture, chatAuthKey, channelId)))
-            {
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(authToken.token_type, authToken.access_token);
-                using (var response = await this.SendAsync(request))
-                {
-                    return await this.GetResponseAsync<Contracts.ChatConnectionAuthentication>(response);
                 }
             }
         }
