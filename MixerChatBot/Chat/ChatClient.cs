@@ -10,6 +10,9 @@ using Newtonsoft.Json.Linq;
 
 namespace MixerChatBot.Chat
 {
+    /// <summary>
+    /// Class to connect and send & recieve chat messages
+    /// </summary>
     public class ChatClient
     {
         private ClientWebSocket chatSocket = new ClientWebSocket();
@@ -53,35 +56,42 @@ namespace MixerChatBot.Chat
             {
                 while (chatMessageInfo == null)
                 {
-                    byte[] nextMessage = await this.RecieveMessageAsync(ts.Token);
-                    // Console.WriteLine(System.Text.Encoding.UTF8.GetString(nextMessage));
+                    try
+                    {
+                        byte[] nextMessage = await this.RecieveMessageAsync(ts.Token);
 
-                    var rawJson = DeserializeMessage <JObject>(nextMessage);
+                        var rawJson = DeserializeMessage<JObject>(nextMessage);
 
-                    chatMessageInfo = rawJson.ToObject<Messages.BaseEvent>();
-                    if (string.CompareOrdinal(chatMessageInfo.type, Messages.BaseEvent.Type) != 0)
-                    {
-                        chatMessageInfo = null;
+                        chatMessageInfo = rawJson.ToObject<Messages.BaseEvent>();
+                        if (string.CompareOrdinal(chatMessageInfo.type, Messages.BaseEvent.Type) != 0)
+                        {
+                            chatMessageInfo = null;
+                        }
+                        else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatDeleteMessageEvent.EventType) == 0)
+                        {
+                            chatMessageInfo = rawJson.ToObject<Messages.ChatDeleteMessageEvent>();
+                        }
+                        else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatUserJoinEvent.EventType) == 0)
+                        {
+                            chatMessageInfo = rawJson.ToObject<Messages.ChatUserJoinEvent>();
+                        }
+                        else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatUserLeaveEvent.EventType) == 0)
+                        {
+                            chatMessageInfo = rawJson.ToObject<Messages.ChatUserLeaveEvent>();
+                        }
+                        else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatMessageEvent.EventType) == 0)
+                        {
+                            chatMessageInfo = rawJson.ToObject<Messages.ChatMessageEvent>();
+                        }
+                        else
+                        {
+                            // we didn't match a type we care about, just throw it away
+                            chatMessageInfo = null;
+                        }
                     }
-                    else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatDeleteMessageEvent.EventType) == 0)
+                    catch (Exception)
                     {
-                        chatMessageInfo = rawJson.ToObject<Messages.ChatDeleteMessageEvent>();
-                    }
-                    else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatUserJoinEvent.EventType) == 0)
-                    {
-                        chatMessageInfo = rawJson.ToObject<Messages.ChatUserJoinEvent>();
-                    }
-                    else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatUserLeaveEvent.EventType) == 0)
-                    {
-                        chatMessageInfo = rawJson.ToObject<Messages.ChatUserLeaveEvent>();
-                    }
-                    else if (string.CompareOrdinal(chatMessageInfo.Event, Messages.ChatMessageEvent.EventType) == 0)
-                    {
-                        chatMessageInfo = rawJson.ToObject<Messages.ChatMessageEvent>();
-                    }
-                    else
-                    {
-                        // we didn't match a know type, just throw it away
+                        // if anything goes wrong, skill the message
                         chatMessageInfo = null;
                     }
                 }
@@ -93,6 +103,7 @@ namespace MixerChatBot.Chat
         /// <summary>
         /// Send the user athentication info to the chat server.
         /// </summary>
+        /// <see cref="https://dev.mixer.com/reference/chat/methods/auth"/>
         /// <param name="authToken">The chat auth token</param>
         /// <param name="channelId">The channel to connect to chat for</param>
         /// <param name="userId">The user the auth token is for</param>
@@ -142,7 +153,7 @@ namespace MixerChatBot.Chat
         }
 
         /// <summary>
-        /// Send a whisper to another user in the chat.
+        /// Delete a message out of the channel's chat.
         /// </summary>
         /// <see cref="https://dev.mixer.com/reference/chat/methods/deletemessage"/>
         /// <param name="messageId">The id of the message to delete</param>
@@ -189,7 +200,7 @@ namespace MixerChatBot.Chat
 
 
         /// <summary>
-        /// Get the next message from the chat server.
+        /// Get the next message from the chat server. This is where buffer management happens.
         /// </summary>
         /// <param name="token">A cancellation token.</param>
         /// <returns>The message bytes or null.</returns>

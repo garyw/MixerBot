@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace MixerChatBot.Authentication
 {
     /// <summary>
-    /// Class to simplest OAuth short code login for a console app.
+    /// Class to do the simplest OAuth short code login for a console app.
     /// </summary>
     public class AuthClient : MixerRestBase
     {
@@ -22,7 +22,7 @@ namespace MixerChatBot.Authentication
         private string clientSecret;
 
         /// <summary>
-        /// Default constructor.
+        /// Constructor.
         /// </summary>
         /// <see cref="https://mixer.com/lab/oauth"/>
         /// <param name="clientId">The OAuth client id.</param>

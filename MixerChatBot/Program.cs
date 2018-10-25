@@ -9,9 +9,6 @@ namespace MixerChatBot
 {
     class Program
     {
-        // This avoids a couple web requests that I don't want to write code for.
-        const uint MixerDevShowChannelId = 48121131;
-
         static void Main(string[] args)
         {
             MainAsync(args).Wait();
@@ -19,15 +16,16 @@ namespace MixerChatBot
 
         static async Task MainAsync(string[] args)
         {
+            // TODO: if you use this directly, create your own OAuth app at https://mixer.com/lab/oauth and replace the strings below
             AuthClient authClient = new AuthClient("aaba1641f5fca65a60386df808f7ec23f6a817a68beb869a", "97cbf17468b223623a574023da0ae150af5a964bf64fb0ca82c79164eaeba2bb");
             var oAuthToken = await authClient.RunOauthCodeFlowForConsoleAppAsync("chat:connect chat:chat chat:whisper chat:remove_message");
 
             HttpClient httpClient = new HttpClient(oAuthToken);
-            var chatConnectionInfo = await httpClient.RequestChatAuthKeyAsync(MixerDevShowChannelId);
             var userInfo = await httpClient.GetAuthenticatedUserInfoAsync();
+            var chatConnectionInfo = await httpClient.RequestChatAuthKeyAsync(userInfo.channel.id);
 
             ChatClient chat = new ChatClient();
-            await chat.ConnectAsync(chatConnectionInfo, MixerDevShowChannelId, userInfo.id);
+            await chat.ConnectAsync(chatConnectionInfo, userInfo.channel.id, userInfo.id);
 
             var chatMessageInfo = await chat.GetNextChatMessageAsync();
             while (chatMessageInfo != null)
@@ -51,7 +49,6 @@ namespace MixerChatBot
                 }
 
                 chatMessageInfo = await chat.GetNextChatMessageAsync();
-
             }
         }
     }

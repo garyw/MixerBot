@@ -11,11 +11,18 @@ using Newtonsoft.Json;
 
 namespace MixerChatBot.Http
 {
+    /// <summary>
+    /// A client for Mixer's http REST APIs
+    /// </summary>
     class HttpClient : MixerRestBase
     {
         private static readonly string chatConnectInfoUri = "https://mixer.com/api/v1/chats/{0}";
         private static readonly string currentUserInfoUri = "https://mixer.com/api/v1/users/current";
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="auth">Optional auth token.</param>
         public HttpClient(TokenResponse auth)
             : base(auth)
         {
